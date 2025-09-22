@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>各小区行业分布横向分析</title>
+  <script src="https://cdn.jsdelivr.net/npm/echarts@5.4.0/dist/echarts.min.js"></script>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    
+    body {
+      background-color: transparent;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+    
+    #chart-container {
+      flex: 1;
+      width: 100%;
+      position: relative;
+    }
+    
+    .legend-container {
+      position: absolute;
+      bottom: 10px;
+      left: 3%;
+      right: 3%;
+      display: flex;
+      flex-wrap: nowrap;
+      overflow-x: auto;
+      gap: 8px;
+      padding: 5px 0;
+      z-index: 10;
+      scrollbar-width: none; /* Firefox */
+      -ms-overflow-style: none; /* IE/Edge */
+    }
+    
+    .legend-container::-webkit-scrollbar {
+      display: none; /* Chrome/Safari */
+    }
+    
+    .legend-item {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      color: #e0e0e0;
+      font-size: 10px;
+      opacity: 0.9;
+      transition: all 0.3s ease;
+      padding: 3px 8px;
+      border-radius: 3px;
+      background: transparent;
+      border: 1px solid rgba(200, 200, 200, 0.2);
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
+    
+    .legend-item:hover {
+      opacity: 1;
+      transform: translateY(-2px);
+      border-color: rgba(100, 150, 255, 0.4);
+    }
+    
+    .legend-color {
+      width: 8px;
+      height: 8px;
+      border-radius: 2px;
+      box-shadow: 0 0 2px rgba(0, 0, 0, 0.2);
+    }
+    
+    @media (max-width: 480px) {
+      .legend-item {
+        font-size: 9px;
+        padding: 2px 6px;
+      }
+      
+      .legend-color {
+        width: 7px;
+        height: 7px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div id="chart-container"></div>
+  
+  <div class="legend-container">
+    <div class="legend-item">
+      <span class="legend-color" style="background-color: #9b59b6;"></span>
+      <span>文体娱乐</span>
+    </div>
+    <div class="legend-item">
+      <span class="legend-color" style="background-color: #e74c3c;"></span>
+      <span>餐饮业</span>
+    </div>
+    <div class="legend-item">
+      <span class="legend-color" style="background-color: #1abc9c;"></span>
+      <span>商务服务</span>
+    </div>
+    <div class="legend-item">
+      <span class="legend-color" style="background-color: #3498db;"></span>
+      <span>零售业</span>
+    </div>
+    <div class="legend-item">
+      <span class="legend-color" style="background-color: #2ecc71;"></span>
+      <span>居民服务</span>
+    </div>
+    <div class="legend-item">
+      <span class="legend-color" style="background-color: #f39c12;"></span>
+      <span>教育服务</span>
+    </div>
+    <div class="legend-item">
+      <span class="legend-color" style="background-color: #34495e;"></span>
+      <span>快递服务</span>
+    </div>
+    <div class="legend-item">
+      <span class="legend-color" style="background-color: #16a085;"></span>
+      <span>信息技术</span>
+    </div>
+    <div class="legend-item">
+      <span class="legend-color" style="background-color: #d35400;"></span>
+      <span>金融业</span>
+    </div>
+  </div>
+
+  <script type="text/javascript">
+    // 初始化图表容器
+    const chartContainer = document.getElementById('chart-container');
+    const mainChart = echarts.init(chartContainer);
+    
+    // 原始数据
+    const communityData = {
+      communities: ['1期', '2期', '3期', '4期'],
+      industries: [
+        '文体娱乐业', '餐饮业', '商务服务业', '零售业', 
+        '居民服务业', '教育服务业', '快递服务业', 
+        '信息传输、软件和技术服物业', '金融业'
+      ],
+      data: [
+        [4, 11, 2, 3, 5, 2, 1, 0, 0],    // 1期
+        [2, 31, 3, 23, 14, 2, 0, 1, 0],   // 2期
+        [1, 31, 0, 23, 25, 1, 0, 0, 0],   // 3期
+        [0, 13, 0, 5, 4, 1, 0, 0, 1]      // 4期
+      ]
+    };
+    
+    // 行业颜色方案
+    const industryColors = [
+      '#9b59b6', '#e74c3c', '#1abc9c', '#3498db', 
+      '#2ecc71', '#f39c12', '#34495e', '#16a085', '#d35400'
+    ];
+    
+    // 准备系列数据
+    const seriesData = communityData.industries.map((industry, index) => {
+      const data = communityData.data.map(item => item[index]);
+      
+      return {
+        name: industry,
+        type: 'bar',
+        data: data,
+        itemStyle: {
+          color: industryColors[index],
+          borderRadius: [0, 6, 6, 0]
+        },
+        label: {
+          show: true,
+          position: 'right',
+          formatter: '{c}',
+          color: '#e0e0e0',
+          fontSize: 11
+        }
+      };
+    });
+    
+    // 图表配置 - 横向条形图
+    const option = {
+      tooltip: {
+        trigger: 'axis',
+        axisPointer: {
+          type: 'shadow'
+        },
+        backgroundColor: 'rgba(20, 25, 40, 0.95)',
+        borderColor: 'rgba(100, 120, 180, 0.5)',
+        textStyle: {
+          color: '#e0e0e0',
+          fontSize: 8
+        },
+        padding: [5, 8],
+        
+        position: function(point, params, dom, rect, size) {
+          // 确保悬浮框在可视区域内
+          const x = point[0];
+          const y = point[1];
+          const viewWidth = size.viewSize[0];
+          const viewHeight = size.viewSize[1];
+          const domWidth = size.contentSize[0];
+          const domHeight = size.contentSize[1];
+          
+          let posX = x;
+          let posY = y;
+          
+          // 水平方向调整
+          if (x + domWidth > viewWidth) {
+            posX = x - domWidth;
+          }
+          
+          // 垂直方向调整
+          if (y + domHeight > viewHeight) {
+            posY = y - domHeight;
+          }
+          
+          return [posX, posY];
+        }
+      },
+      legend: {
+        show: false
+      },
+      grid: {
+        left: '3%',
+        right: '3%',
+        bottom: '60px', // 为图例留出空间
+        top: '3%',
+        containLabel: true
+      },
+      xAxis: {
+        splitLine: { show: false },
+        type: 'value',
+        axisLabel: {
+          color: '#c0c0c0',
+          fontSize: 11
+        },
+        axisLine: {
+          lineStyle: {
+            color: 'rgba(200, 200, 200, 0.2)'
+          }
+        },
+       
+      },
+      yAxis: {
+        type: 'category',
+        data: communityData.communities,
+        axisLabel: {
+          color: '#e0e0e0',
+          fontSize: 12
+        },
+        axisLine: {
+          lineStyle: {
+            color: 'rgba(200, 200, 200, 0.3)'
+          }
+        }
+      },
+      series: seriesData,
+      backgroundColor: 'transparent',
+      animation: true,
+      animationDuration: 800
+    };
+    
+    // 设置图表选项
+    mainChart.setOption(option);
+    
+    // 响应窗口大小变化
+    window.addEventListener('resize', function() {
+      mainChart.resize();
+    });
+    
+    // 添加悬停效果到图例
+    
+  </script>
+</body>
+</html>
